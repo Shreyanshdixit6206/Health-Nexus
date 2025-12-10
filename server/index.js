@@ -1,0 +1,235 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+const jwt = require('jsonwebtoken');
+const session = require('express-session');
+const multer = require('multer');
+const { nanoid } = require('nanoid');
+
+const DATA_DIR = path.join(__dirname, 'data');
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const MEDS_FILE = path.join(DATA_DIR, 'medicines.json');
+const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
+const VAULT_FILE = path.join(DATA_DIR, 'vault.json');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-health-nexus';
+const OTP_TTL_MS = 1000 * 60 * 5; // 5 minutes
+
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+
+// Session support (simple memory store for prototype)
+app.use(session({
+  name: 'hn_sid',
+  secret: process.env.SESSION_SECRET || 'dev-session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 1000 * 60 * 60 * 24 } // 1 day
+}));
+
+// Simple uploads via multer
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+const upload = multer({ dest: UPLOADS_DIR, limits: { fileSize: 5 * 1024 * 1024 } });
+
+// In-memory OTP store: { aadhaar: { otp, expiresAt } }
+const otps = {};
+
+function readJson(file) {
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8') || 'null') || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function writeJson(file, obj) {
+  fs.writeFileSync(file, JSON.stringify(obj, null, 2), 'utf8');
+}
+
+// Ensure data dir/files exist
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+if (!fs.existsSync(USERS_FILE)) writeJson(USERS_FILE, []);
+if (!fs.existsSync(MEDS_FILE)) writeJson(MEDS_FILE, []);
+if (!fs.existsSync(ORDERS_FILE)) writeJson(ORDERS_FILE, []);
+if (!fs.existsSync(VAULT_FILE)) writeJson(VAULT_FILE, []);
+
+// --- Auth helpers ---
+function generateOtp() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function authMiddleware(req, res, next) {
+  // Prefer session-based auth
+  if (req.session && req.session.user) {
+    req.user = req.session.user;
+    return next();
+  }
+  // fallback to token for backward compatibility
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith('Bearer ')) return res.status(401).json({ error: 'Missing token' });
+  const token = auth.slice(7);
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    req.user = payload;
+    next();
+  } catch (e) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
+
+// --- Routes ---
+
+// Serve the main HTML file at root
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'health-nexus.html'));
+});
+
+app.post('/api/login-request', (req, res) => {
+  const { aadhaar } = req.body || {};
+  if (!aadhaar) return res.status(400).json({ error: 'aadhaar required' });
+  const users = readJson(USERS_FILE);
+  const user = users.find(u => u.aadhaar === aadhaar);
+  if (!user) return res.status(404).json({ error: 'Aadhaar not found' });
+
+  const otp = generateOtp();
+  otps[aadhaar] = { otp, expiresAt: Date.now() + OTP_TTL_MS };
+  console.log(`[DEV] OTP for ${aadhaar}: ${otp}`);
+
+  // Return both devOtp and request token
+  return res.json({ ok: true, devOtp: otp });
+});
+
+app.post('/api/verify-otp', (req, res) => {
+  const { aadhaar, otp } = req.body || {};
+  if (!aadhaar || !otp) return res.status(400).json({ error: 'aadhaar and otp required' });
+
+  const stored = otps[aadhaar];
+  if (!stored || Date.now() > stored.expiresAt) {
+    return res.status(401).json({ error: 'OTP expired or not found' });
+  }
+  if (stored.otp !== otp) {
+    return res.status(401).json({ error: 'Invalid OTP' });
+  }
+
+  const users = readJson(USERS_FILE);
+  let user = users.find(u => u.aadhaar === aadhaar);
+  if (!user) {
+    user = { id: nanoid(), aadhaar, createdAt: new Date().toISOString() };
+    users.push(user);
+    writeJson(USERS_FILE, users);
+  }
+
+  delete otps[aadhaar];
+
+  // Set session
+  req.session.user = user;
+
+  const token = jwt.sign(user, JWT_SECRET, { expiresIn: '24h' });
+  return res.json({ ok: true, user, token });
+});
+
+app.get('/api/medicines', (req, res) => {
+  const meds = readJson(MEDS_FILE);
+  return res.json(meds);
+});
+
+app.post('/api/search-suggest', (req, res) => {
+  const { q } = req.body || {};
+  if (!q) return res.json([]);
+  const meds = readJson(MEDS_FILE);
+  const matches = meds.filter(m => m.name.toLowerCase().includes(q.toLowerCase())).slice(0, 10);
+  return res.json(matches);
+});
+
+app.get('/api/orders', authMiddleware, (req, res) => {
+  const orders = readJson(ORDERS_FILE);
+  const userOrders = orders.filter(o => o.userId === req.user.id);
+  return res.json(userOrders);
+});
+
+app.post('/api/orders', authMiddleware, (req, res) => {
+  const { items, total, address, customerName, customerPhone, paymentId, paymentStatus } = req.body;
+  if (!items || !total || !address) {
+    return res.status(400).json({ error: 'items, total, address required' });
+  }
+
+  const newOrder = {
+    id: 'ORD-' + nanoid(),
+    userId: req.user.id,
+    items,
+    total,
+    address,
+    customerName,
+    customerPhone,
+    paymentId,
+    paymentStatus,
+    createdAt: new Date().toISOString()
+  };
+
+  const orders = readJson(ORDERS_FILE);
+  orders.push(newOrder);
+  writeJson(ORDERS_FILE, orders);
+
+  return res.status(201).json(newOrder);
+});
+
+app.post('/api/vault', authMiddleware, upload.single('document'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  const vault = readJson(VAULT_FILE) || [];
+  const entry = {
+    id: nanoid(),
+    ownerId: req.user.id,
+    filename: req.file.filename,
+    originalName: req.file.originalname,
+    mimetype: req.file.mimetype,
+    size: req.file.size,
+    uploadedAt: new Date().toISOString()
+  };
+  vault.push(entry);
+  writeJson(VAULT_FILE, vault);
+  return res.status(201).json(entry);
+});
+
+app.get('/api/vault', authMiddleware, (req, res) => {
+  const vault = readJson(VAULT_FILE) || [];
+  const userVault = vault.filter(v => v.ownerId === req.user.id);
+  return res.json(userVault);
+});
+
+app.delete('/api/vault/:id', authMiddleware, (req, res) => {
+  const { id } = req.params;
+  const vault = readJson(VAULT_FILE) || [];
+  const idx = vault.findIndex(v => v.id === id && v.ownerId === req.user.id);
+  if (idx === -1) return res.status(404).json({ error: 'Not found' });
+  const [removed] = vault.splice(idx, 1);
+  writeJson(VAULT_FILE, vault);
+  // remove file if exists
+  const filePath = path.join(UPLOADS_DIR, removed.filename || '');
+  if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  return res.json({ ok: true });
+});
+
+// Serve frontend static files
+const FRONTEND_DIR = path.join(__dirname, '..', 'frontend');
+if (fs.existsSync(FRONTEND_DIR)) {
+  app.use(express.static(FRONTEND_DIR));
+}
+
+const PORT = process.env.PORT || 3000;
+
+// For Vercel serverless deployment
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  // Local development server
+  const server = app.listen(PORT, () => {
+    console.log(`Health NEXUS backend running on http://localhost:${PORT}`);
+    console.log(`Data directory: ${DATA_DIR}`);
+  });
+  // Keep the process alive
+  setInterval(() => {}, 1000);
+}
