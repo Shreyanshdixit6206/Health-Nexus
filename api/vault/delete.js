@@ -37,26 +37,42 @@ module.exports = async (req, res) => {
       }
       
       const vault = readJson(VAULT_FILE);
+      
+      console.log('All vault docs:', vault);
+      console.log('Looking for ID:', id, 'User:', user.aadhaar);
+      
       const doc = vault.find(d => d.id === id && d.aadhaar === user.aadhaar);
       
       if (!doc) {
-        console.log('Document not found. ID:', id, 'User:', user.aadhaar);
-        console.log('Available docs:', vault.filter(d => d.aadhaar === user.aadhaar).map(d => d.id));
-        return res.status(404).json({ error: 'Document not found' });
+        // Document might have been uploaded in different function instance
+        // Try to delete by ID anyway (for Vercel ephemeral storage)
+        const docAny = vault.find(d => d.id === id);
+        if (docAny) {
+          console.log('Found doc but wrong user. Doc user:', docAny.aadhaar, 'Request user:', user.aadhaar);
+          return res.status(403).json({ error: 'Not authorized to delete this document' });
+        }
+        console.log('Document not found in vault database. ID:', id);
+        console.log('Available doc IDs:', vault.map(d => d.id));
+        return res.status(404).json({ error: 'Document not found. It may have been uploaded in a previous session.' });
       }
       
+      // Try to delete the physical file (may not exist due to Vercel's ephemeral storage)
       const filePath = path.join(UPLOADS_DIR, doc.filename);
       if (fs.existsSync(filePath)) {
         try {
           fs.unlinkSync(filePath);
+          console.log('Physical file deleted:', filePath);
         } catch (err) {
           console.error('Error deleting file:', err);
         }
+      } else {
+        console.log('Physical file not found (ephemeral storage):', filePath);
       }
       
+      // Remove from database
       const updated = vault.filter(d => d.id !== id);
       writeJson(VAULT_FILE, updated);
-      console.log('Document deleted successfully:', id);
+      console.log('Document removed from database:', id);
       return res.status(200).json({ message: 'Deleted' });
     }
     

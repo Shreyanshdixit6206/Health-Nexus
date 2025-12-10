@@ -113,6 +113,7 @@
 
       <!-- Upload Section (hidden until verified) -->
       <div id="upload-section" class="bg-white p-6 rounded-lg shadow mb-6 hidden">
+        <p class="text-sm text-amber-600 mb-2">⚠️ <b>Demo Note:</b> Uploaded files are temporary and will be cleared between sessions due to Vercel's serverless architecture.</p>
         <p class="text-slate-600 mb-4">✓ ABHA Verified - Data will be securely saved on the government database.</p>
         <div class="flex flex-col sm:flex-row gap-4">
           <input id="doc-file" type="file" class="flex-1 px-4 py-2 border border-slate-300 rounded-lg" />
@@ -682,9 +683,20 @@
           <button class="px-4 py-2 text-red-600 font-semibold delete-doc" data-id="${d.id}">Delete</button>`;
         list.appendChild(el);
         el.querySelector('.delete-doc').addEventListener('click', async () => {
+          if (!confirm('Delete this document?')) return;
           const res2 = await fetch(API_BASE + '/vault/delete?id=' + d.id, { method: 'DELETE', headers, credentials: 'same-origin' });
-          if (res2.ok) { alert('Deleted'); loadVault(); }
-          else { const err = await res2.json(); alert('Delete failed: ' + (err.error || 'Unknown error')); }
+          if (res2.ok) { 
+            alert('Document deleted successfully'); 
+            loadVault(); 
+          } else { 
+            const err = await res2.json(); 
+            if (err.error.includes('previous session')) {
+              alert('This document was uploaded in a previous session and is no longer available.\n\nNote: Files are temporary on this demo deployment.');
+            } else {
+              alert('Delete failed: ' + (err.error || 'Unknown error')); 
+            }
+            loadVault();
+          }
         });
       });
     }
