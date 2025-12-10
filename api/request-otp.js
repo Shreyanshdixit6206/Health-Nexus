@@ -19,8 +19,9 @@ module.exports = async (req, res) => {
   }
   
   const otp = String(Math.floor(100000 + Math.random() * 900000));
-  saveOtp(aadhaar, otp, Date.now() + OTP_TTL_MS);
-  console.log(`[DEV] OTP for ${aadhaar}: ${otp}`);
+  const expiresAt = Date.now() + OTP_TTL_MS;
+  saveOtp(aadhaar, otp, expiresAt);
+  console.log(`[DEV] Saved OTP for ${aadhaar}: ${otp}, expires: ${new Date(expiresAt).toISOString()}`);
   
-  return res.status(200).json({ message: 'OTP sent', otp });
+  return res.status(200).json({ message: 'OTP sent', otp, aadhaar });
 };

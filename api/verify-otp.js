@@ -15,8 +15,18 @@ module.exports = async (req, res) => {
   const { aadhaar, otp } = req.body;
   const record = getOtp(aadhaar);
   
-  if (!record || record.otp !== otp || Date.now() > record.expiresAt) {
-    return res.status(401).json({ error: 'Invalid or expired OTP' });
+  console.log(`Verify attempt - Aadhaar: ${aadhaar}, OTP: ${otp}, Record:`, record);
+  
+  if (!record) {
+    return res.status(401).json({ error: 'No OTP found for this Aadhaar. Please request OTP again.' });
+  }
+  
+  if (record.otp !== otp) {
+    return res.status(401).json({ error: `Invalid OTP. Expected: ${record.otp}, Got: ${otp}` });
+  }
+  
+  if (Date.now() > record.expiresAt) {
+    return res.status(401).json({ error: 'OTP expired. Please request a new one.' });
   }
   
   deleteOtp(aadhaar);
