@@ -38,8 +38,19 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-health-nexus';
 const OTP_TTL_MS = 1000 * 60 * 5;
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Log all requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
 
 app.use(session({
   name: 'hn_sid',
