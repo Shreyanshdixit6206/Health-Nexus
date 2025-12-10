@@ -70,21 +70,36 @@ module.exports = async (req, res) => {
     }
     
     if (req.method === 'DELETE') {
-      const id = req.url.split('/').pop();
+      // Extract ID from URL path: /api/vault/abc123 -> abc123
+      const urlParts = req.url.split('/');
+      const id = urlParts[urlParts.length - 1];
+      
+      console.log('DELETE request - URL:', req.url, 'ID:', id);
+      
+      if (!id || id === 'vault') {
+        return res.status(400).json({ error: 'Document ID required' });
+      }
+      
       const vault = readJson(VAULT_FILE);
       const doc = vault.find(d => d.id === id && d.aadhaar === user.aadhaar);
       
       if (!doc) {
-        return res.status(404).json({ error: 'Not found' });
+        console.log('Document not found. ID:', id, 'User:', user.aadhaar);
+        return res.status(404).json({ error: 'Document not found' });
       }
       
       const filePath = path.join(UPLOADS_DIR, doc.filename);
       if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+        try {
+          fs.unlinkSync(filePath);
+        } catch (err) {
+          console.error('Error deleting file:', err);
+        }
       }
       
       const updated = vault.filter(d => d.id !== id);
       writeJson(VAULT_FILE, updated);
+      console.log('Document deleted successfully:', id);
       return res.status(200).json({ message: 'Deleted' });
     }
     

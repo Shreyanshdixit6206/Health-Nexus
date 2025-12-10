@@ -28,14 +28,18 @@ module.exports = async (req, res) => {
     }
     
     if (req.method === 'POST') {
-      const { items, customerDetails, paymentDetails } = req.body;
+      const { items, total, address, customerName, customerPhone, paymentId, paymentStatus } = req.body;
       const orders = readJson(ORDERS_FILE);
       const order = {
         id: generateId(10),
         aadhaar: user.aadhaar,
         items,
-        customerDetails,
-        paymentDetails,
+        total,
+        address,
+        customerName,
+        customerPhone,
+        paymentId,
+        paymentStatus,
         status: 'processing',
         createdAt: new Date().toISOString()
       };
