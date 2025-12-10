@@ -81,7 +81,7 @@
     </section>
 
   <!-- Mobile floating cart button -->
-  <button id="mobile-cartBtn" class="sm:hidden fixed bottom-6 right-4 bg-teal-600 text-white p-4 rounded-full shadow-lg z-50">Cart (<span id="mobile-cart-count">0</span>)</button>
+  <button id="mobile-cartBtn" class="hidden sm:hidden fixed bottom-6 right-4 bg-teal-600 text-white p-4 rounded-full shadow-lg z-50">Cart (<span id="mobile-cart-count">0</span>)</button>
 
     <!-- MEDICINE STORE -->
     <section id="store" class="hidden">
@@ -91,7 +91,7 @@
             <h3 class="text-3xl font-bold">Medicine Store</h3>
             <div id="nearest-kendra" class="text-sm text-slate-500 mt-1 hidden">Ordering by nearest Janaushadi Kendra</div>
           </div>
-          <button id="view-cart-btn" class="px-6 py-2 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 transition">View Cart (<span id="cart-count">0</span>)</button>
+          <button id="view-cart-btn" class="hidden px-6 py-2 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 transition">View Cart (<span id="cart-count">0</span>)</button>
         </div>
         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div class="flex-1 relative">
@@ -300,12 +300,16 @@
       const navStore = document.getElementById('nav-store');
       const navVault = document.getElementById('nav-vault');
       const navOrders = document.getElementById('nav-orders');
+      const viewCartBtn = document.getElementById('view-cart-btn');
+      const mobileCartBtn = document.getElementById('mobile-cartBtn');
       if (isLoggedIn){
         loginBtn.classList.add('hidden');
         logoutBtn.classList.remove('hidden');
         navStore.classList.remove('hidden');
         navVault.classList.remove('hidden');
         navOrders.classList.remove('hidden');
+        if (viewCartBtn) viewCartBtn.classList.remove('hidden');
+        if (mobileCartBtn) mobileCartBtn.classList.remove('hidden');
         loadCart();
       } else {
         loginBtn.classList.add('hidden');
@@ -313,6 +317,8 @@
         navStore.classList.add('hidden');
         navVault.classList.add('hidden');
         navOrders.classList.add('hidden');
+        if (viewCartBtn) viewCartBtn.classList.add('hidden');
+        if (mobileCartBtn) mobileCartBtn.classList.add('hidden');
       }
     }
 
