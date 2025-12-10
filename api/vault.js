@@ -1,9 +1,8 @@
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
-const { nanoid } = require('nanoid');
 const fs = require('fs');
 const path = require('path');
-const { VAULT_FILE, readJson, writeJson, JWT_SECRET, setCorsHeaders, initDataDir } = require('./_shared');
+const { VAULT_FILE, readJson, writeJson, JWT_SECRET, setCorsHeaders, initDataDir, generateId } = require('./_shared');
 
 const UPLOADS_DIR = '/tmp/uploads';
 if (!fs.existsSync(UPLOADS_DIR)) {
@@ -59,7 +58,7 @@ module.exports = async (req, res) => {
       
       const vault = readJson(VAULT_FILE);
       const doc = {
-        id: nanoid(10),
+        id: generateId(10),
         aadhaar: user.aadhaar,
         filename: req.file.filename,
         originalname: req.file.originalname,

@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { nanoid } = require('nanoid');
-const { ORDERS_FILE, readJson, writeJson, JWT_SECRET, setCorsHeaders } = require('./_shared');
+const { ORDERS_FILE, readJson, writeJson, JWT_SECRET, setCorsHeaders, generateId } = require('./_shared');
 
 function authMiddleware(req) {
   const token = req.headers.authorization?.replace('Bearer ', '');
@@ -32,7 +31,7 @@ module.exports = async (req, res) => {
       const { items, customerDetails, paymentDetails } = req.body;
       const orders = readJson(ORDERS_FILE);
       const order = {
-        id: nanoid(10),
+        id: generateId(10),
         aadhaar: user.aadhaar,
         items,
         customerDetails,
