@@ -423,8 +423,12 @@
       if (!res.ok) return alert(j.error || 'Error');
       document.getElementById('otp-section').classList.remove('hidden');
       document.getElementById('verify-otp').classList.remove('hidden');
-      if (j.devOtp) document.getElementById('otp-input').value = j.devOtp;
-      alert('OTP requested');
+      if (j.otp) {
+        document.getElementById('otp-input').value = j.otp;
+        alert(`OTP sent! Your OTP is: ${j.otp}\n(Auto-filled for convenience)`);
+      } else {
+        alert('OTP requested - check console');
+      }
     });
 
     document.getElementById('verify-otp').addEventListener('click', async () => {

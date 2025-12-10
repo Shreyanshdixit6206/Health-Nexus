@@ -1,11 +1,9 @@
-const otps = {};
+const { saveOtp, setCorsHeaders } = require('./_shared');
+
 const OTP_TTL_MS = 1000 * 60 * 5;
 
 module.exports = async (req, res) => {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  setCorsHeaders(res);
   
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -21,7 +19,7 @@ module.exports = async (req, res) => {
   }
   
   const otp = String(Math.floor(100000 + Math.random() * 900000));
-  otps[aadhaar] = { otp, expiresAt: Date.now() + OTP_TTL_MS };
+  saveOtp(aadhaar, otp, Date.now() + OTP_TTL_MS);
   console.log(`[DEV] OTP for ${aadhaar}: ${otp}`);
   
   return res.status(200).json({ message: 'OTP sent', otp });

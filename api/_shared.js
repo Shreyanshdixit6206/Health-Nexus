@@ -6,6 +6,7 @@ const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const MEDS_FILE = path.join(DATA_DIR, 'medicines.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 const VAULT_FILE = path.join(DATA_DIR, 'vault.json');
+const OTPS_FILE = path.join(DATA_DIR, 'otps.json');
 
 function initDataDir() {
   if (!fs.existsSync(DATA_DIR)) {
@@ -41,6 +42,33 @@ function writeJson(file, obj) {
   fs.writeFileSync(file, JSON.stringify(obj, null, 2), 'utf8');
 }
 
+// OTP storage functions
+function saveOtp(aadhaar, otp, expiresAt) {
+  const otps = readOtps();
+  otps[aadhaar] = { otp, expiresAt };
+  writeJson(OTPS_FILE, otps);
+}
+
+function getOtp(aadhaar) {
+  const otps = readOtps();
+  return otps[aadhaar];
+}
+
+function deleteOtp(aadhaar) {
+  const otps = readOtps();
+  delete otps[aadhaar];
+  writeJson(OTPS_FILE, otps);
+}
+
+function readOtps() {
+  try {
+    initDataDir();
+    return JSON.parse(fs.readFileSync(OTPS_FILE, 'utf8') || '{}') || {};
+  } catch (e) {
+    return {};
+  }
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-health-nexus';
 
 function setCorsHeaders(res) {
@@ -55,9 +83,13 @@ module.exports = {
   MEDS_FILE,
   ORDERS_FILE,
   VAULT_FILE,
+  OTPS_FILE,
   readJson,
   writeJson,
   JWT_SECRET,
   setCorsHeaders,
-  initDataDir
+  initDataDir,
+  saveOtp,
+  getOtp,
+  deleteOtp
 };

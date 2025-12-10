@@ -1,8 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { USERS_FILE, readJson, writeJson, JWT_SECRET, setCorsHeaders } = require('./_shared');
-
-const otps = {};
-const OTP_TTL_MS = 1000 * 60 * 5;
+const { USERS_FILE, readJson, writeJson, JWT_SECRET, setCorsHeaders, getOtp, deleteOtp } = require('./_shared');
 
 module.exports = async (req, res) => {
   setCorsHeaders(res);
@@ -16,13 +13,13 @@ module.exports = async (req, res) => {
   }
   
   const { aadhaar, otp } = req.body;
-  const record = otps[aadhaar];
+  const record = getOtp(aadhaar);
   
   if (!record || record.otp !== otp || Date.now() > record.expiresAt) {
     return res.status(401).json({ error: 'Invalid or expired OTP' });
   }
   
-  delete otps[aadhaar];
+  deleteOtp(aadhaar);
   
   let users = readJson(USERS_FILE);
   let user = users.find(u => u.aadhaar === aadhaar);
