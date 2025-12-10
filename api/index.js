@@ -79,12 +79,6 @@ function authMiddleware(req, res, next) {
   }
 }
 
-// Root route - serve HTML
-app.get('/', (req, res) => {
-  const htmlPath = path.join(__dirname, '../frontend/health-nexus.html');
-  res.sendFile(htmlPath);
-});
-
 // Request OTP
 app.post('/api/request-otp', (req, res) => {
   const { aadhaar } = req.body;
@@ -185,12 +179,6 @@ app.delete('/api/vault/:id', authMiddleware, (req, res) => {
   const updated = vault.filter(d => d.id !== req.params.id);
   writeJson(VAULT_FILE, updated);
   res.json({ message: 'Deleted' });
-});
-
-// Catch all other routes and serve HTML
-app.get('*', (req, res) => {
-  const htmlPath = path.join(__dirname, '../frontend/health-nexus.html');
-  res.sendFile(htmlPath);
 });
 
 module.exports = app;
