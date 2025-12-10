@@ -418,7 +418,7 @@
     document.getElementById('request-otp').addEventListener('click', async () => {
       const aadhaar = document.getElementById('aadhaar-input').value.trim();
       if (!aadhaar) return alert(translations[currentLang].enter_aadhaar);
-      const res = await fetch(API_BASE + '/login-request', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ aadhaar }), credentials: 'same-origin' });
+      const res = await fetch(API_BASE + '/request-otp', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ aadhaar }), credentials: 'same-origin' });
       const j = await res.json();
       if (!res.ok) return alert(j.error || 'Error');
       document.getElementById('otp-section').classList.remove('hidden');
