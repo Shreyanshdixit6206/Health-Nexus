@@ -9,45 +9,53 @@
   <style>
     .fade { animation: fadeIn .28s ease both }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: translateY(0) } }
-    /* Mobile modal and touch improvements */
+    /* Mobile optimizations */
     @media (max-width: 640px) {
       .modal-mobile { inset: 0; position: fixed; display: flex; align-items: stretch; justify-content: center; }
-      .modal-mobile > .bg-white { width: 100% !important; height: 100% !important; border-radius: 0 !important; margin: 0 !important; overflow:auto !important; }
-      button { min-height: 44px; padding-top: .6rem; padding-bottom: .6rem; }
+      .modal-mobile > div { width: 100% !important; max-width: 100% !important; height: 100% !important; border-radius: 0 !important; margin: 0 !important; overflow:auto !important; }
+      button, input[type="button"], input[type="submit"] { min-height: 48px; font-size: 16px; }
+      input, select, textarea { font-size: 16px; } /* Prevent zoom on iOS */
       #store-grid { grid-template-columns: 1fr !important; }
+      .container { padding-left: 1rem; padding-right: 1rem; }
     }
+    /* Better touch targets */
+    button { touch-action: manipulation; }
+    /* Prevent horizontal scroll */
+    body { overflow-x: hidden; }
+    /* Improve modal readability */
+    .modal-content { max-height: 90vh; overflow-y: auto; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
-  <header class="bg-white shadow p-4 sticky top-0 z-50">
-    <div class="container mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/1200px-Emblem_of_India.svg.png" alt="logo" class="w-10 h-10 opacity-80" />
-        <h1 class="text-xl font-bold">Health NEXUS</h1>
+  <header class="bg-white shadow p-3 sm:p-4 sticky top-0 z-50">
+    <div class="container mx-auto flex items-center justify-between flex-wrap gap-2">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/1200px-Emblem_of_India.svg.png" alt="logo" class="w-8 h-8 sm:w-10 sm:h-10 opacity-80" />
+        <h1 class="text-lg sm:text-xl font-bold">Health NEXUS</h1>
       </div>
-      <div class="flex items-center gap-2">
-        <button id="nav-store" class="px-4 py-2 rounded bg-amber-400 hover:bg-amber-500 hidden" data-i18n="store">Store</button>
-        <button id="nav-vault" class="px-4 py-2 rounded bg-slate-100 hover:bg-slate-200 hidden" data-i18n="vault">Vault</button>
-        <button id="nav-orders" class="px-4 py-2 rounded bg-slate-100 hover:bg-slate-200 hidden" data-i18n="orders">Orders</button>
-        <button id="login-nav" class="px-4 py-2 rounded bg-teal-600 text-white hidden" data-i18n="login">Login</button>
-        <button id="logout-btn" class="px-4 py-2 rounded bg-red-600 text-white hidden" data-i18n="logout">Logout</button>
-        <div class="ml-2 flex items-center gap-1">
-          <button id="lang-en" class="px-2 py-1 rounded bg-slate-100">EN</button>
-          <button id="lang-hi" class="px-2 py-1 rounded bg-slate-100">हिंदी</button>
+      <div class="flex items-center gap-1 sm:gap-2 flex-wrap">
+        <button id="nav-store" class="px-2 sm:px-4 py-2 text-sm sm:text-base rounded bg-amber-400 hover:bg-amber-500 hidden" data-i18n="store">Store</button>
+        <button id="nav-vault" class="px-2 sm:px-4 py-2 text-sm sm:text-base rounded bg-slate-100 hover:bg-slate-200 hidden" data-i18n="vault">Vault</button>
+        <button id="nav-orders" class="px-2 sm:px-4 py-2 text-sm sm:text-base rounded bg-slate-100 hover:bg-slate-200 hidden" data-i18n="orders">Orders</button>
+        <button id="login-nav" class="px-2 sm:px-4 py-2 text-sm sm:text-base rounded bg-teal-600 text-white hidden" data-i18n="login">Login</button>
+        <button id="logout-btn" class="px-2 sm:px-4 py-2 text-sm sm:text-base rounded bg-red-600 text-white hidden" data-i18n="logout">Logout</button>
+        <div class="ml-1 sm:ml-2 flex items-center gap-1">
+          <button id="lang-en" class="px-2 py-1.5 text-xs sm:text-sm rounded bg-slate-100">EN</button>
+          <button id="lang-hi" class="px-2 py-1.5 text-xs sm:text-sm rounded bg-slate-100">हिंदी</button>
         </div>
-          <div id="user-location" class="ml-4 text-sm text-slate-500 hidden"></div>
+          <div id="user-location" class="ml-2 sm:ml-4 text-xs sm:text-sm text-slate-500 hidden truncate max-w-[100px] sm:max-w-none"></div>
       </div>
     </div>
   </header>
 
-  <main class="container mx-auto p-6">
+  <main class="container mx-auto p-3 sm:p-6">
     <!-- LANDING PAGE -->
     <section id="landing" class="fade">
-      <div class="text-center py-12 px-4">
-        <h2 class="text-4xl sm:text-5xl font-extrabold text-slate-900 mb-4" data-i18n="landing_title">Your Trusted Digital Health Partner</h2>
-        <p class="mt-2 text-lg text-slate-600 max-w-2xl mx-auto" data-i18n="landing_sub">Access affordable generic medicines, securely store your medical documents, and manage your health with ease.</p>
-        <div class="mt-8 flex justify-center gap-4 flex-wrap">
-          <button id="cta-login" class="px-8 py-3 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-full font-semibold hover:shadow-lg transition" data-i18n="get_started">Get Started</button>
+      <div class="text-center py-8 sm:py-12 px-2 sm:px-4">
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 mb-3 sm:mb-4 leading-tight" data-i18n="landing_title">Your Trusted Digital Health Partner</h2>
+        <p class="mt-2 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto px-4" data-i18n="landing_sub">Access affordable generic medicines, securely store your medical documents, and manage your health with ease.</p>
+        <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
+          <button id="cta-login" class="w-full sm:w-auto px-6 sm:px-8 py-3 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-full font-semibold hover:shadow-lg transition text-base" data-i18n="get_started">Get Started</button>
           <button id="cta-learn" class="px-8 py-3 bg-white border-2 border-slate-300 rounded-full font-semibold hover:bg-slate-50 transition" data-i18n="learn_more">Learn More</button>
         </div>
         <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -98,26 +106,26 @@
 
     <!-- VAULT -->
     <section id="vault" class="hidden">
-      <h3 class="text-3xl font-bold mb-6">Health Vault</h3>
+      <h3 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Health Vault</h3>
       
       <!-- ABHA Verification Status -->
-      <div id="abha-verification-box" class="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-lg shadow mb-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <h4 class="font-bold text-lg text-blue-900">ABHA ID Verification Required</h4>
-            <p class="text-sm text-blue-700 mt-1">Verify your ABHA ID to enable secure storage on government database.</p>
+      <div id="abha-verification-box" class="bg-blue-50 border-l-4 border-blue-600 p-4 sm:p-6 rounded-lg shadow mb-4 sm:mb-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div class="flex-1">
+            <h4 class="font-bold text-base sm:text-lg text-blue-900">ABHA ID Verification Required</h4>
+            <p class="text-xs sm:text-sm text-blue-700 mt-1">Verify your ABHA ID to enable secure storage on government database.</p>
           </div>
-          <button id="verify-abha-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition whitespace-nowrap">Verify ABHA ID</button>
+          <button id="verify-abha-btn" class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition whitespace-nowrap text-sm sm:text-base">Verify ABHA ID</button>
         </div>
       </div>
 
       <!-- Upload Section (hidden until verified) -->
-      <div id="upload-section" class="bg-white p-6 rounded-lg shadow mb-6 hidden">
-        <p class="text-sm text-amber-600 mb-2">⚠️ <b>Demo Note:</b> Uploaded files are temporary and will be cleared between sessions due to Vercel's serverless architecture.</p>
-        <p class="text-slate-600 mb-4">✓ ABHA Verified - Data will be securely saved on the government database.</p>
-        <div class="flex flex-col sm:flex-row gap-4">
-          <input id="doc-file" type="file" class="flex-1 px-4 py-2 border border-slate-300 rounded-lg" />
-          <button id="upload-doc" class="px-6 py-2 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 transition">Upload</button>
+      <div id="upload-section" class="bg-white p-4 sm:p-6 rounded-lg shadow mb-4 sm:mb-6 hidden">
+        <p class="text-xs sm:text-sm text-amber-600 mb-2">⚠️ <b>Demo Note:</b> Uploaded files are temporary and will be cleared between sessions due to Vercel's serverless architecture.</p>
+        <p class="text-sm sm:text-base text-slate-600 mb-3 sm:mb-4">✓ ABHA Verified - Data will be securely saved on the government database.</p>
+        <div class="flex flex-col gap-3 sm:gap-4">
+          <input id="doc-file" type="file" class="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-slate-300 rounded-lg text-sm sm:text-base" />
+          <button id="upload-doc" class="w-full sm:w-auto px-6 py-2.5 sm:py-2 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 transition text-base">Upload</button>
         </div>
       </div>
       
@@ -125,104 +133,104 @@
     </section>
 
     <!-- ORDERS -->
-    <section id="orders" class="hidden">
-      <h3 class="text-3xl font-bold mb-6" data-i18n="my_orders">My Orders</h3>
-      <div id="orders-list" class="space-y-4"></div>
+    <section id="orders" class="hidden fade">
+      <h3 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6" data-i18n="my_orders">My Orders</h3>
+      <div id="orders-list" class="space-y-3 sm:space-y-4"></div>
     </section>
 
     <!-- CART MODAL -->
-    <div id="cart-modal" class="modal-mobile fixed inset-0 hidden flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div class="bg-white rounded-lg p-8 max-w-2xl w-full max-h-96 overflow-y-auto">
-        <h2 class="text-2xl font-bold mb-4">Shopping Cart</h2>
-        <div id="cart-items-list" class="mb-4 space-y-3"></div>
-        <div class="border-t pt-4 mb-4">
-          <div class="flex justify-between text-lg font-bold">
+    <div id="cart-modal" class="modal-mobile fixed inset-0 hidden flex items-center justify-center z-50 bg-black bg-opacity-50 p-3">
+      <div class="bg-white rounded-lg p-4 sm:p-8 max-w-2xl w-full max-h-96 overflow-y-auto">
+        <h2 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Shopping Cart</h2>
+        <div id="cart-items-list" class="mb-3 sm:mb-4 space-y-2 sm:space-y-3"></div>
+        <div class="border-t pt-3 sm:pt-4 mb-3 sm:mb-4">
+          <div class="flex justify-between text-base sm:text-lg font-bold">
             <span>Total:</span>
             <span>₹<span id="cart-total">0</span></span>
           </div>
         </div>
-        <div class="flex gap-3">
-          <button id="continue-shopping" class="flex-1 px-4 py-2 bg-slate-300 rounded-lg font-semibold hover:bg-slate-400">Continue Shopping</button>
-          <button id="checkout-btn" class="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700">Proceed to Checkout</button>
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <button id="continue-shopping" class="flex-1 px-4 py-3 bg-slate-300 rounded-lg font-semibold hover:bg-slate-400 text-sm sm:text-base">Continue Shopping</button>
+          <button id="checkout-btn" class="flex-1 px-4 py-3 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 text-sm sm:text-base">Proceed to Checkout</button>
         </div>
       </div>
     </div>
 
     <!-- CHECKOUT MODAL -->
-    <div id="checkout-modal" class="modal-mobile fixed inset-0 hidden flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div class="bg-white rounded-lg p-8 max-w-md w-full">
-        <h2 class="text-2xl font-bold mb-6">Delivery Details</h2>
-        <input id="checkout-name" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-teal-600 mb-3" placeholder="Full Name" />
-        <input id="checkout-phone" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-teal-600 mb-3" placeholder="Phone (10 digits)" maxlength="10" />
-        <textarea id="checkout-address" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-teal-600 mb-4" placeholder="Delivery Address" rows="3"></textarea>
+    <div id="checkout-modal" class="modal-mobile fixed inset-0 hidden flex items-center justify-center z-50 bg-black bg-opacity-50 p-3">
+      <div class="bg-white rounded-lg p-4 sm:p-8 max-w-md w-full">
+        <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Delivery Details</h2>
+        <input id="checkout-name" class="w-full px-3 sm:px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:border-teal-600 mb-3 text-sm sm:text-base" placeholder="Full Name" />
+        <input id="checkout-phone" class="w-full px-3 sm:px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:border-teal-600 mb-3 text-sm sm:text-base" placeholder="Phone (10 digits)" maxlength="10" />
+        <textarea id="checkout-address" class="w-full px-3 sm:px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:border-teal-600 mb-4 text-sm sm:text-base" placeholder="Delivery Address" rows="3"></textarea>
         <div class="bg-slate-100 p-3 rounded-lg mb-4">
-          <div class="flex justify-between text-sm mb-1"><span>Subtotal:</span><span>₹<span id="checkout-subtotal">0</span></span></div>
-          <div class="flex justify-between text-sm mb-2"><span>Shipping:</span><span>Free</span></div>
-          <div class="flex justify-between font-bold text-lg"><span>Total:</span><span>₹<span id="checkout-total">0</span></span></div>
+          <div class="flex justify-between text-xs sm:text-sm mb-1"><span>Subtotal:</span><span>₹<span id="checkout-subtotal">0</span></span></div>
+          <div class="flex justify-between text-xs sm:text-sm mb-2"><span>Shipping:</span><span>Free</span></div>
+          <div class="flex justify-between font-bold text-base sm:text-lg"><span>Total:</span><span>₹<span id="checkout-total">0</span></span></div>
         </div>
-        <div class="flex gap-3">
-          <button id="back-to-cart" class="flex-1 px-4 py-2 bg-slate-300 rounded-lg font-semibold hover:bg-slate-400">Back</button>
-          <button id="proceed-payment" class="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700">Pay Now</button>
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <button id="back-to-cart" class="flex-1 px-4 py-3 bg-slate-300 rounded-lg font-semibold hover:bg-slate-400 text-sm sm:text-base">Back</button>
+          <button id="proceed-payment" class="flex-1 px-4 py-3 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 text-sm sm:text-base">Pay Now</button>
         </div>
       </div>
     </div>
 
     <!-- PAYMENT MODAL -->
-    <div id="payment-modal" class="modal-mobile fixed inset-0 hidden flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div class="bg-white rounded-lg p-8 max-w-md w-full">
-        <h2 class="text-2xl font-bold mb-6">Payment</h2>
-        <div class="bg-gradient-to-r from-teal-500 to-teal-700 text-white p-4 rounded-lg mb-6">
-          <div class="text-sm opacity-80">Amount to Pay</div>
-          <div class="text-3xl font-bold">₹<span id="payment-amount">0</span></div>
+    <div id="payment-modal" class="modal-mobile fixed inset-0 hidden flex items-center justify-center z-50 bg-black bg-opacity-50 p-3">
+      <div class="bg-white rounded-lg p-4 sm:p-8 max-w-md w-full">
+        <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Payment</h2>
+        <div class="bg-gradient-to-r from-teal-500 to-teal-700 text-white p-4 rounded-lg mb-4 sm:mb-6">
+          <div class="text-xs sm:text-sm opacity-80">Amount to Pay</div>
+          <div class="text-2xl sm:text-3xl font-bold">₹<span id="payment-amount">0</span></div>
         </div>
-        <input id="card-number" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-teal-600 mb-3" placeholder="Card Number" maxlength="19" />
-        <div class="flex gap-3 mb-3">
-          <input id="card-expiry" class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-teal-600" placeholder="MM/YY" maxlength="5" />
-          <input id="card-cvv" class="w-20 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-teal-600" placeholder="CVV" maxlength="3" />
+        <input id="card-number" class="w-full px-3 sm:px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:border-teal-600 mb-3 text-sm sm:text-base" placeholder="Card Number" maxlength="19" />
+        <div class="flex gap-2 sm:gap-3 mb-3">
+          <input id="card-expiry" class="flex-1 px-3 sm:px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:border-teal-600 text-sm sm:text-base" placeholder="MM/YY" maxlength="5" />
+          <input id="card-cvv" class="w-20 sm:w-24 px-3 sm:px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:border-teal-600 text-sm sm:text-base" placeholder="CVV" maxlength="3" />
         </div>
         <div class="text-xs text-slate-500 mb-4 p-2 bg-slate-50 rounded">Demo: Any card works (e.g., 4111 1111 1111 1111)</div>
-        <div class="flex gap-3">
-          <button id="cancel-payment" class="flex-1 px-4 py-2 bg-slate-300 rounded-lg font-semibold hover:bg-slate-400">Cancel</button>
-          <button id="pay-now" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700">Pay Now</button>
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <button id="cancel-payment" class="flex-1 px-4 py-3 bg-slate-300 rounded-lg font-semibold hover:bg-slate-400 text-sm sm:text-base">Cancel</button>
+          <button id="pay-now" class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 text-sm sm:text-base">Pay Now</button>
         </div>
       </div>
     </div>
 
     <!-- LOGIN MODAL -->
-    <div id="login-modal" class="modal-mobile fixed inset-0 hidden flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div class="bg-white rounded-lg p-8 max-w-md w-full">
-        <h2 class="text-2xl font-bold mb-6" data-i18n="login_modal_title">Login with Aadhaar (OTP)</h2>
+    <div id="login-modal" class="modal-mobile fixed inset-0 hidden flex items-center justify-center z-50 bg-black bg-opacity-50 p-3">
+      <div class="bg-white rounded-lg p-4 sm:p-8 max-w-md w-full">
+        <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6" data-i18n="login_modal_title">Login with Aadhaar (OTP)</h2>
         <div class="mt-4">
-          <label class="block text-sm text-slate-600" data-i18n="aadhaar_label">Aadhaar Number</label>
-          <input id="aadhaar-input" class="w-full mt-1 px-3 py-2 border rounded" placeholder="123412341234" />
+          <label class="block text-xs sm:text-sm text-slate-600" data-i18n="aadhaar_label">Aadhaar Number</label>
+          <input id="aadhaar-input" class="w-full mt-1 px-3 py-3 border rounded text-sm sm:text-base" placeholder="123412341234" />
         </div>
         <div id="otp-section" class="mt-4 hidden">
-          <label class="block text-sm text-slate-600" data-i18n="enter_otp">Enter OTP</label>
-          <input id="otp-input" class="w-full mt-1 px-3 py-2 border rounded" placeholder="6-digit OTP" />
+          <label class="block text-xs sm:text-sm text-slate-600" data-i18n="enter_otp">Enter OTP</label>
+          <input id="otp-input" class="w-full mt-1 px-3 py-3 border rounded text-sm sm:text-base" placeholder="6-digit OTP" />
         </div>
-        <div class="mt-4 flex gap-2">
-          <button id="request-otp" class="px-4 py-2 bg-amber-500 text-white rounded" data-i18n="request_otp">Request OTP</button>
-          <button id="verify-otp" class="px-4 py-2 bg-teal-600 text-white rounded hidden" data-i18n="verify_otp">Verify OTP</button>
-          <button id="close-login" class="ml-auto px-3 py-2 text-slate-600" data-i18n="close">Close</button>
+        <div class="mt-4 flex flex-col sm:flex-row gap-2">
+          <button id="request-otp" class="px-4 py-3 bg-amber-500 text-white rounded font-semibold hover:bg-amber-600 text-sm sm:text-base" data-i18n="request_otp">Request OTP</button>
+          <button id="verify-otp" class="px-4 py-3 bg-teal-600 text-white rounded font-semibold hover:bg-teal-700 hidden text-sm sm:text-base" data-i18n="verify_otp">Verify OTP</button>
+          <button id="close-login" class="sm:ml-auto px-4 py-3 text-slate-600 hover:bg-slate-100 rounded font-semibold text-sm sm:text-base" data-i18n="close">Close</button>
         </div>
-        <p id="login-help" class="mt-3 text-sm text-slate-500" data-i18n="login_help">OTP will be shown in server console (dev mode).</p>
+        <p id="login-help" class="mt-3 text-xs sm:text-sm text-slate-500" data-i18n="login_help">OTP will be shown in server console (dev mode).</p>
       </div>
     </div>
 
     <!-- ABHA ID VERIFICATION MODAL -->
-    <div id="abha-modal" class="modal-mobile fixed inset-0 hidden flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div class="bg-white rounded-lg p-8 max-w-md w-full">
-        <h2 class="text-2xl font-bold mb-2">ABHA ID Verification</h2>
-        <p class="text-sm text-slate-600 mb-6">Verify your ABHA ID to securely store medical records on the government database.</p>
+    <div id="abha-modal" class="modal-mobile fixed inset-0 hidden flex items-center justify-center z-50 bg-black bg-opacity-50 p-3">
+      <div class="bg-white rounded-lg p-4 sm:p-8 max-w-md w-full">
+        <h2 class="text-xl sm:text-2xl font-bold mb-2">ABHA ID Verification</h2>
+        <p class="text-xs sm:text-sm text-slate-600 mb-4 sm:mb-6">Verify your ABHA ID to securely store medical records on the government database.</p>
         <div class="mt-4">
-          <label class="block text-sm text-slate-600">ABHA ID (10 digits)</label>
-          <input id="abha-input" class="w-full mt-1 px-3 py-2 border rounded focus:outline-none focus:border-teal-600" placeholder="1234567890" maxlength="10" />
+          <label class="block text-xs sm:text-sm text-slate-600">ABHA ID (10 digits)</label>
+          <input id="abha-input" class="w-full mt-1 px-3 py-3 border rounded focus:outline-none focus:border-teal-600 text-sm sm:text-base" placeholder="1234567890" maxlength="10" />
         </div>
-        <div class="mt-4 flex gap-2">
-          <button id="verify-abha" class="flex-1 px-4 py-2 bg-teal-600 text-white rounded font-semibold hover:bg-teal-700">Verify ABHA</button>
-          <button id="close-abha" class="px-4 py-2 bg-slate-300 rounded font-semibold hover:bg-slate-400">Cancel</button>
+        <div class="mt-4 flex flex-col sm:flex-row gap-2">
+          <button id="verify-abha" class="flex-1 px-4 py-3 bg-teal-600 text-white rounded font-semibold hover:bg-teal-700 text-sm sm:text-base">Verify ABHA</button>
+          <button id="close-abha" class="px-4 py-3 bg-slate-300 rounded font-semibold hover:bg-slate-400 text-sm sm:text-base">Cancel</button>
         </div>
-        <div id="abha-status" class="mt-4 text-sm hidden p-3 rounded-lg"></div>
+        <div id="abha-status" class="mt-4 text-xs sm:text-sm hidden p-3 rounded-lg"></div>
       </div>
     </div>
   </main>
@@ -472,18 +480,18 @@
       const list = document.getElementById('cart-items-list');
       list.innerHTML = '';
       if (CART.length === 0){
-        list.innerHTML = '<div class="text-center py-8 text-slate-600">Your cart is empty</div>';
+        list.innerHTML = '<div class="text-center py-6 sm:py-8 text-slate-600 text-sm sm:text-base">Your cart is empty</div>';
         return;
       }
       CART.forEach((item, idx) => {
         const el = document.createElement('div');
-        el.className = 'flex items-center justify-between p-4 bg-slate-50 rounded-lg';
+        el.className = 'flex items-center justify-between p-3 sm:p-4 bg-slate-50 rounded-lg';
         el.innerHTML = `
           <div class="flex-1">
-            <div class="font-semibold">${item.name}</div>
-            <div class="text-sm text-slate-600">₹${item.price} × ${item.quantity || 1} = ₹${item.price * (item.quantity || 1)}</div>
+            <div class="font-semibold text-sm sm:text-base">${item.name}</div>
+            <div class="text-xs sm:text-sm text-slate-600">₹${item.price} × ${item.quantity || 1} = ₹${item.price * (item.quantity || 1)}</div>
           </div>
-          <button class="px-2 py-1 bg-slate-200 rounded remove-item" data-idx="${idx}">Remove</button>`;
+          <button class="px-3 py-2 bg-slate-200 rounded remove-item hover:bg-slate-300 text-xs sm:text-sm font-medium" data-idx="${idx}">Remove</button>`;
         list.appendChild(el);
         el.querySelector('.remove-item').addEventListener('click', () => {
           CART.splice(idx, 1);
@@ -774,7 +782,7 @@
       const list = document.getElementById('orders-list');
       list.innerHTML = '';
       if (!j || j.length === 0){
-        list.innerHTML = '<div class="p-6 bg-slate-50 rounded-lg text-center text-slate-600">No orders yet</div>';
+        list.innerHTML = '<div class="p-4 sm:p-6 bg-slate-50 rounded-lg text-center text-slate-600 text-sm sm:text-base">No orders yet</div>';
         return;
       }
 
@@ -797,24 +805,25 @@
         }
 
         const el = document.createElement('div');
-        el.className = 'p-4 sm:p-6 bg-white rounded-lg shadow';
+        el.className = 'p-3 sm:p-6 bg-white rounded-lg shadow';
         el.innerHTML = `
-          <div class="flex justify-between items-start mb-3">
-            <div>
-              <div class="font-bold text-lg">${title}</div>
-              <div class="text-xs text-slate-600">Order #${o.id} • ${new Date(o.createdAt).toLocaleString()}</div>
-              <div class="text-sm text-slate-500 mt-1">${o.items.length} items - ₹${o.total}</div>
+          <div class="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-0 mb-3">
+            <div class="flex-1">
+              <div class="font-bold text-base sm:text-lg">${title}</div>
+              <div class="text-xs text-slate-600 mt-1">Order #${o.id}</div>
+              <div class="text-xs text-slate-600">${new Date(o.createdAt).toLocaleString()}</div>
+              <div class="text-xs sm:text-sm text-slate-500 mt-1">${o.items.length} items - ₹${o.total}</div>
             </div>
-            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">${status}</span>
+            <span class="px-2 sm:px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap self-start">${status}</span>
           </div>
           <div class="mb-3">
             <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
               <div class="h-full bg-teal-600" style="width: ${progress}%"></div>
             </div>
           </div>
-          <div class="flex gap-2">
-            <button class="px-3 py-2 bg-blue-500 text-white rounded-lg text-sm font-semibold track-order" data-id="${o.id}">Track</button>
-            <button class="px-3 py-2 bg-slate-200 text-slate-800 rounded-lg text-sm font-semibold invoice-btn" data-id="${o.id}">Invoice</button>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <button class="px-4 py-3 bg-blue-500 text-white rounded-lg text-sm font-semibold track-order hover:bg-blue-600" data-id="${o.id}">Track Order</button>
+            <button class="px-4 py-3 bg-slate-200 text-slate-800 rounded-lg text-sm font-semibold invoice-btn hover:bg-slate-300" data-id="${o.id}">View Invoice</button>
           </div>`;
         list.appendChild(el);
 
