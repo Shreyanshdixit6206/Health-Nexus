@@ -8,6 +8,8 @@ const session = require('express-session');
 const multer = require('multer');
 const { nanoid } = require('nanoid');
 
+// Use /tmp for uploads in Vercel (writable), otherwise use local uploads
+const isVercel = process.env.VERCEL === '1';
 const DATA_DIR = path.join(__dirname, 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const MEDS_FILE = path.join(DATA_DIR, 'medicines.json');
@@ -30,8 +32,8 @@ app.use(session({
   cookie: { maxAge: 1000 * 60 * 60 * 24 } // 1 day
 }));
 
-// Simple uploads via multer
-const UPLOADS_DIR = path.join(__dirname, 'uploads');
+// Use /tmp for uploads in Vercel (ephemeral but writable)
+const UPLOADS_DIR = isVercel ? '/tmp/uploads' : path.join(__dirname, 'uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 const upload = multer({ dest: UPLOADS_DIR, limits: { fileSize: 5 * 1024 * 1024 } });
 
@@ -219,13 +221,11 @@ if (fs.existsSync(FRONTEND_DIR)) {
   app.use(express.static(FRONTEND_DIR));
 }
 
-const PORT = process.env.PORT || 3000;
-
-// For Vercel serverless deployment
-if (process.env.VERCEL) {
+// Export for Vercel serverless or start local server
+if (isVercel) {
   module.exports = app;
 } else {
-  // Local development server
+  const PORT = process.env.PORT || 3000;
   const server = app.listen(PORT, () => {
     console.log(`Health NEXUS backend running on http://localhost:${PORT}`);
     console.log(`Data directory: ${DATA_DIR}`);
