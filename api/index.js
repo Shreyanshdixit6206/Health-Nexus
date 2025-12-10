@@ -80,7 +80,7 @@ function authMiddleware(req, res, next) {
 }
 
 // Request OTP
-app.post('/api/request-otp', (req, res) => {
+app.post('/request-otp', (req, res) => {
   const { aadhaar } = req.body;
   if (!aadhaar || aadhaar.length !== 12) {
     return res.status(400).json({ error: 'Invalid Aadhaar' });
@@ -92,7 +92,7 @@ app.post('/api/request-otp', (req, res) => {
 });
 
 // Verify OTP and login
-app.post('/api/verify-otp', (req, res) => {
+app.post('/verify-otp', (req, res) => {
   const { aadhaar, otp } = req.body;
   const record = otps[aadhaar];
   if (!record || record.otp !== otp || Date.now() > record.expiresAt) {
@@ -114,13 +114,13 @@ app.post('/api/verify-otp', (req, res) => {
 });
 
 // Get medicines
-app.get('/api/medicines', (req, res) => {
+app.get('/medicines', (req, res) => {
   const meds = readJson(MEDS_FILE);
   res.json(meds);
 });
 
 // Create order
-app.post('/api/orders', authMiddleware, (req, res) => {
+app.post('/orders', authMiddleware, (req, res) => {
   const { items, customerDetails, paymentDetails } = req.body;
   const orders = readJson(ORDERS_FILE);
   const order = {
@@ -138,14 +138,14 @@ app.post('/api/orders', authMiddleware, (req, res) => {
 });
 
 // Get orders
-app.get('/api/orders', authMiddleware, (req, res) => {
+app.get('/orders', authMiddleware, (req, res) => {
   const orders = readJson(ORDERS_FILE);
   const userOrders = orders.filter(o => o.aadhaar === req.user.aadhaar);
   res.json(userOrders);
 });
 
 // Vault - upload
-app.post('/api/vault', authMiddleware, upload.single('file'), (req, res) => {
+app.post('/vault', authMiddleware, upload.single('file'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file' });
   const vault = readJson(VAULT_FILE);
   const doc = {
@@ -161,14 +161,14 @@ app.post('/api/vault', authMiddleware, upload.single('file'), (req, res) => {
 });
 
 // Vault - list
-app.get('/api/vault', authMiddleware, (req, res) => {
+app.get('/vault', authMiddleware, (req, res) => {
   const vault = readJson(VAULT_FILE);
   const userDocs = vault.filter(d => d.aadhaar === req.user.aadhaar);
   res.json(userDocs);
 });
 
 // Vault - delete
-app.delete('/api/vault/:id', authMiddleware, (req, res) => {
+app.delete('/vault/:id', authMiddleware, (req, res) => {
   const vault = readJson(VAULT_FILE);
   const doc = vault.find(d => d.id === req.params.id && d.aadhaar === req.user.aadhaar);
   if (!doc) return res.status(404).json({ error: 'Not found' });
