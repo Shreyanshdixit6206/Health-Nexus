@@ -682,8 +682,9 @@
           <button class="px-4 py-2 text-red-600 font-semibold delete-doc" data-id="${d.id}">Delete</button>`;
         list.appendChild(el);
         el.querySelector('.delete-doc').addEventListener('click', async () => {
-          const res2 = await fetch(API_BASE + '/vault/' + d.id, { method: 'DELETE', headers, credentials: 'same-origin' });
+          const res2 = await fetch(API_BASE + '/vault/delete?id=' + d.id, { method: 'DELETE', headers, credentials: 'same-origin' });
           if (res2.ok) { alert('Deleted'); loadVault(); }
+          else { const err = await res2.json(); alert('Delete failed: ' + (err.error || 'Unknown error')); }
         });
       });
     }
